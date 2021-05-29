@@ -1,6 +1,6 @@
 import { BrowserRouter } from 'react-router-dom';
 import React, { Component } from 'react';
-import { Route, Redirect } from 'react-router-dom';
+import { Route } from 'react-router-dom';
 
 
 import './App.css';
@@ -19,7 +19,7 @@ class App extends Component {
       <BrowserRouter>
         <Route path="/login" component={Login} />
         <Route path="/register" component={Register} />
-        <Route path="/home" component={Home} />
+        <Route path="/home" render={(props) => <Home {...props} />} />
         <Route path="/" exact component={Welcome} />
       </BrowserRouter>
     )

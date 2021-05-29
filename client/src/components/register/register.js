@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
-import { Link, Redirect } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import ReactDOM from 'react-dom';
 
 import API from '../../axios/api';
-import history from '../../history/history'
 import './register.css'
 
 class Register extends Component {

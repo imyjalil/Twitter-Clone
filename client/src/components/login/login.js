@@ -25,7 +25,10 @@ class Login extends Component {
                 else {
                     console.log('redirecting to home')
                     localStorage.setItem('token', response.data.token)
-                    this.props.history.push("/home")
+                    this.props.history.push({
+                        pathname: "/home",
+                        state: { user: response.data.user }
+                    })
                 }
             }
             else {
