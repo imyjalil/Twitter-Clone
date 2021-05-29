@@ -23,7 +23,6 @@ UserSchema.methods.generateAuthToken = async function () {
     const user = this
     const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET)
     user.tokens = user.tokens.concat({ token })
-    await user.save()
     return token
 }
 
@@ -42,6 +41,19 @@ UserSchema.methods.toJSON = function () {
     delete userObject.password
     delete userObject.tokens
     return userObject
+}
+
+UserSchema.statics.findByCredentials = async (username, password) => {
+
+    const user = await User.findOne({ username })
+    if (!user) {
+        throw new Error("Invalid credentials")
+    }
+    const isMatch = await bcrypt.compare(password, user.password)
+    if (!isMatch) {
+        throw new Error("Invalid credentials")
+    }
+    return user
 }
 
 var User = mongoose.model('User', UserSchema)

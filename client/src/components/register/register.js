@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import ReactDOM from 'react-dom';
 
 import API from '../../axios/api';
+import history from '../../history/history'
+import './register.css'
 
 class Register extends Component {
     constructor(props) {
@@ -14,11 +16,11 @@ class Register extends Component {
         var passwordField = document.getElementById("password")
         var passwordConfField = document.getElementById("passwordConf")
         if (passwordField.value !== passwordConfField.value) {
-            ReactDOM.render('Passwords do not match', document.getElementById('passwordInc'))
+            ReactDOM.render('Passwords do not match', document.getElementById('error'))
             return false;
         }
         else {
-            ReactDOM.render(null, document.getElementById('passwordInc'))
+            ReactDOM.render(null, document.getElementById('error'))
         }
         return true;
     }
@@ -33,10 +35,19 @@ class Register extends Component {
             email: event.target.elements['email'].value,
             password: event.target.elements['password'].value
         }
-        console.log(data)
         const response = await API.post('/register', data)
-
-        console.log(response)
+        if (response && response.data) {
+            if (response.data.errorMessage) {
+                ReactDOM.render(response.data.errorMessage, document.getElementById('error'))
+            }
+            else {
+                console.log('redirecting to login')
+                this.props.history.push("/login")
+            }
+        }
+        else {
+            ReactDOM.render('Unknown error', document.getElementById('error'))
+        }
     }
 
     render() {
@@ -52,12 +63,12 @@ class Register extends Component {
                         <input type="email" name="email" placeholder="Email" defaultValue="abc@def.com" required></input>
                         <input id="password" type="password" name="password" placeholder="Password" defaultValue="abcdef12" required></input>
                         <input id="passwordConf" type="password" name="passwordConf" placeholder="Confirm Password" defaultValue="abcdef12" required onChange={this.validatePassword}></input>
-                        <div id="passwordInc"></div>
+                        <div id="error"></div>
                         <input type="submit" value="Register" />
                     </form>
                     <Link to="/login">Already have an account?Login here.</Link>
                 </div>
-            </div>
+            </div >
         )
     }
 }
