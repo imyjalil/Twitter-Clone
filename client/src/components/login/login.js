@@ -23,7 +23,6 @@ class Login extends Component {
                     ReactDOM.render(response.data.errorMessage, document.getElementById('error'))
                 }
                 else {
-                    console.log('redirecting to home')
                     localStorage.setItem('token', response.data.token)
                     this.props.history.push({
                         pathname: "/home",

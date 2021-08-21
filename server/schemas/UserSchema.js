@@ -23,6 +23,7 @@ UserSchema.methods.generateAuthToken = async function () {
     const user = this
     const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET)
     user.tokens = user.tokens.concat({ token })
+    await user.save()
     return token
 }
 
@@ -43,12 +44,25 @@ UserSchema.methods.toJSON = function () {
     return userObject
 }
 
-UserSchema.statics.findByCredentials = async (username, password) => {
+UserSchema.statics.deleteToken = async (username, token) =>{
+    const user = await User.findOne({username})
+    if(!user){
+        throw new Error("No such user")
+    }
+    
+    //remove tokens from DB
+    user.tokens = user.tokens.filter(function(value, index){
+        return value['token'] != token
+    })
+    await user.save()
+}
 
+UserSchema.statics.findByCredentials = async (username, password) => {
     const user = await User.findOne({ username })
     if (!user) {
         throw new Error("Invalid credentials")
     }
+    console.log(user)
     const isMatch = await bcrypt.compare(password, user.password)
     if (!isMatch) {
         throw new Error("Invalid credentials")

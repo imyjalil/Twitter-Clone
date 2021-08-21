@@ -20,6 +20,7 @@ class App extends Component {
         <Route path="/login" component={Login} />
         <Route path="/register" component={Register} />
         <Route path="/home" render={(props) => <Home {...props} />} />
+        <Route path="/logout" component={Login} />
         <Route path="/" exact component={Welcome} />
       </BrowserRouter>
     )

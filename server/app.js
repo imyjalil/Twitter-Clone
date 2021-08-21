@@ -7,14 +7,16 @@ const mongoose = require("./database")
 
 const app = express()
 app.use(cors())
+app.use(bodyParser.urlencoded({ extended: false }))
 const port = process.env.PORT || 3003
 
 const server = app.listen(port, () => console.log('server listening on port:' + port))
 
 const loginRoute = require('./routes/loginRoutes')
 const registerRoute = require('./routes/registerRoutes')
+const logoutRoute = require('./routes/logoutRoute')
 
 
-app.use(bodyParser.urlencoded({ extended: false }))
 app.use("/login", loginRoute)
 app.use("/register", registerRoute)
+app.use("/logout",logoutRoute)

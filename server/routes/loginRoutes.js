@@ -12,7 +12,6 @@ router.post("/", async (req, res, next) => {
     try {
         const user = await User.findByCredentials(username, password)
         const token = await user.generateAuthToken()
-        console.log('validation successful')
         return res.send({ user, token })
     }
     catch (e) {

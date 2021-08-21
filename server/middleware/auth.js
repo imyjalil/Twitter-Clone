@@ -1,4 +1,4 @@
-const jwt = require('jsonweboken')
+const jwt = require('jsonwebtoken')
 const User = require('../schemas/UserSchema')
 const auth = async (req, res, next) => {
     try {
