@@ -1,0 +1,7 @@
+module.exports={
+    HOME:'HOME',
+    SEARCH:'SEARCH',
+    NOTIFICATIONS:'NOTIFICATIONS',
+    MESSAGES:'MESSAGES',
+    PROFILE:'PROFILE'
+}
