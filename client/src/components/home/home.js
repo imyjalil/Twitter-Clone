@@ -51,6 +51,9 @@ class Home extends Component {
             return console.log("user object not populated")
         }
         var timestamp=this.timeDifference(new Date(),new Date(postData.createdAt));
+
+        var likeButtonActiveClass=postData.likes.includes(this.state.userLoggedIn._id)?"active":""
+
         const postHTML=
             <div className='post'>
                 <div className='mainContentContainer'>
@@ -72,14 +75,15 @@ class Home extends Component {
                                     <i className='far fa-comment'></i>
                                 </button>
                             </div>
-                            <div className='postButtonContainer'>
-                                <button>
+                            <div className='postButtonContainer green'>
+                                <button className='retweet'>
                                     <i className='fas fa-retweet'></i>
                                 </button>
                             </div>
-                            <div className='postButtonContainer'>
-                                <button>
+                            <div className='postButtonContainer red'>
+                                <button className={'likeButton '+likeButtonActiveClass} onClick={(event)=>{this.likeButtonClickHandler(postData,event)}}>
                                     <i className='far fa-heart'></i>
+                                    <span>{postData.likes.length||""}</span>
                                 </button>
                             </div>
                         </div>
@@ -88,6 +92,31 @@ class Home extends Component {
             </div>
         
         return postHTML
+    }
+
+    likeButtonClickHandler=(post,event)=>{
+        var button = event.target
+        var postId = post._id
+        if(postId === undefined) return;
+        let jsonWebToken=localStorage.getItem('token')
+
+        if(!jsonWebToken){
+            return this.state.history.push('/logout')
+        }
+
+        const options = {
+            headers: {'Authorization': 'Bearer '+jsonWebToken}
+        }
+
+        API.put("/api/posts/"+postId+"/like",{},options).then((postData)=>{
+            button.querySelector("span").innerText=postData.data.likes.length || ""
+            if(postData.data.likes.includes(this.state.userLoggedIn._id))
+                button.classList.add("active")
+            else
+                button.classList.remove("active")
+        }).catch((error)=>{
+            console.log(error)
+        })
     }
 
     postButtonClickHandler=()=>{
