@@ -1,20 +1,19 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
 import './home.css';
 import API from '../../axios/api';
-import ReactHtmlParser from 'react-html-parser'
-import ReactDOM from 'react-dom';
 
 class Home extends Component {
     constructor(props){
         super(props);
-        this.state={userLoggedIn:props.userLoggedIn,history:props.history}
+        this.state={userLoggedIn:props.userLoggedIn,history:props.history,posts:null}
     }
 
     createPostHTML=(postData)=>{
         //return postData.content
+        if(postData.postedBy._id === undefined){
+            return console.log("user object not populated")
+        }
         var timestamp=postData.createdAt;
-        console.log(postData)
         const postHTML=
             <div className='post'>
                 <div className='mainContentContainer'>
@@ -54,10 +53,26 @@ class Home extends Component {
         return postHTML
     }
 
-    renderPostHtml=(html)=>{
-        let prevHtml=document.getElementById("postsContainer").innerHTML
-        ReactDOM.render(html,document.getElementById('postsContainer'))
-        document.getElementById("postsContainer").innerHTML+=prevHtml
+    renderPostHtml=(html,container)=>{
+        console.log('html:')
+        console.log(html)
+        if(this.state.posts){
+            this.setState(prevState=>{
+                // let newPosts=Object.assign({},prevState.posts)
+                // newPosts=newPosts+html
+                // console.log(newPosts)
+                // return {newPosts}
+                // posts:{
+                //     ...prevState.posts+html
+                // }
+                let newPosts={...prevState.posts}
+                newPosts=newPosts.concat(html)
+                console.log('newPosts:')
+                console.log(newPosts)
+                return {newPosts}
+            })
+        }
+        else this.setState({posts:html})
     }
 
     postButtonClickHandler=()=>{
@@ -77,9 +92,38 @@ class Home extends Component {
         API.post("/api/posts",data,options).then((response)=>{
             if(response && response.data){
                 var html=this.createPostHTML(response.data)
-                this.renderPostHtml(html)
+                this.renderPostHtml(html,document.getElementById("postsContainer"))
                 document.getElementById("postTextarea").value=""
             }
+        }).catch((error)=>{
+
+        })
+    }
+
+    outputPosts=(results, container)=>{
+        results.forEach((result)=>{
+            var html=this.createPostHTML(result)
+            this.renderPostHtml(html,document.getElementById("postsContainer"))
+        })
+
+        if(results.length===0){
+            container.append('<span class="noResults">Nothing to show.</span>')
+        }
+    }
+
+    componentDidMount(){
+
+        let jsonWebToken=localStorage.getItem('token')
+        if(!jsonWebToken){
+            return this.state.history.push('/logout')
+        }
+        
+        const options = {
+            headers: {'Authorization': 'Bearer '+jsonWebToken}
+          }
+
+        API.get("/api/posts",options).then((response)=>{
+            this.outputPosts(response.data,document.getElementById("postsContainer"))
         }).catch((error)=>{
 
         })
@@ -105,10 +149,9 @@ class Home extends Component {
         )
         return (
             <div>
-                {}
                 {postForm}
                 <div className="postsContainer" id="postsContainer">
-                    
+                    {this.state.posts}
                 </div>
             </div>
         )
