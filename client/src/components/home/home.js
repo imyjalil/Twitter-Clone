@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import './home.css';
 import API from '../../axios/api';
+import ReactDOM from 'react-dom';
 
 class Home extends Component {
     constructor(props){
@@ -8,12 +9,48 @@ class Home extends Component {
         this.state={userLoggedIn:props.userLoggedIn,history:props.history,posts:null}
     }
 
+    timeDifference=(current, previous)=>{
+
+        var msPerMinute = 60 * 1000;
+        var msPerHour = msPerMinute * 60;
+        var msPerDay = msPerHour * 24;
+        var msPerMonth = msPerDay * 30;
+        var msPerYear = msPerDay * 365;
+    
+        var elapsed = current - previous;
+    
+        if (elapsed < msPerMinute) {
+            if(elapsed/1000 < 30) return "Just now"
+            return Math.round(elapsed/1000) + ' seconds ago';   
+        }
+    
+        else if (elapsed < msPerHour) {
+             return Math.round(elapsed/msPerMinute) + ' minutes ago';   
+        }
+    
+        else if (elapsed < msPerDay ) {
+             return Math.round(elapsed/msPerHour ) + ' hours ago';   
+        }
+    
+        else if (elapsed < msPerMonth) {
+            return Math.round(elapsed/msPerDay) + ' days ago';   
+        }
+    
+        else if (elapsed < msPerYear) {
+            return Math.round(elapsed/msPerMonth) + ' months ago';   
+        }
+    
+        else {
+            return Math.round(elapsed/msPerYear ) + ' years ago';   
+        }
+    }
+
     createPostHTML=(postData)=>{
         //return postData.content
         if(postData.postedBy._id === undefined){
             return console.log("user object not populated")
         }
-        var timestamp=postData.createdAt;
+        var timestamp=this.timeDifference(new Date(),new Date(postData.createdAt));
         const postHTML=
             <div className='post'>
                 <div className='mainContentContainer'>
@@ -53,28 +90,6 @@ class Home extends Component {
         return postHTML
     }
 
-    renderPostHtml=(html,container)=>{
-        console.log('html:')
-        console.log(html)
-        if(this.state.posts){
-            this.setState(prevState=>{
-                // let newPosts=Object.assign({},prevState.posts)
-                // newPosts=newPosts+html
-                // console.log(newPosts)
-                // return {newPosts}
-                // posts:{
-                //     ...prevState.posts+html
-                // }
-                let newPosts={...prevState.posts}
-                newPosts=newPosts.concat(html)
-                console.log('newPosts:')
-                console.log(newPosts)
-                return {newPosts}
-            })
-        }
-        else this.setState({posts:html})
-    }
-
     postButtonClickHandler=()=>{
         var data={
             content:document.getElementById("postTextarea").value
@@ -91,24 +106,14 @@ class Home extends Component {
 
         API.post("/api/posts",data,options).then((response)=>{
             if(response && response.data){
-                var html=this.createPostHTML(response.data)
-                this.renderPostHtml(html,document.getElementById("postsContainer"))
+                this.setState(prevState=>({
+                    posts:[response.data,...prevState.posts,]
+                }))
                 document.getElementById("postTextarea").value=""
             }
         }).catch((error)=>{
 
         })
-    }
-
-    outputPosts=(results, container)=>{
-        results.forEach((result)=>{
-            var html=this.createPostHTML(result)
-            this.renderPostHtml(html,document.getElementById("postsContainer"))
-        })
-
-        if(results.length===0){
-            container.append('<span class="noResults">Nothing to show.</span>')
-        }
     }
 
     componentDidMount(){
@@ -123,7 +128,7 @@ class Home extends Component {
           }
 
         API.get("/api/posts",options).then((response)=>{
-            this.outputPosts(response.data,document.getElementById("postsContainer"))
+            this.setState({posts:response.data})
         }).catch((error)=>{
 
         })
@@ -151,7 +156,8 @@ class Home extends Component {
             <div>
                 {postForm}
                 <div className="postsContainer" id="postsContainer">
-                    {this.state.posts}
+                    {/*this.state.posts*/}
+                    {this.state.posts && this.state.posts.map((post,index)=>this.createPostHTML(post))}
                 </div>
             </div>
         )
