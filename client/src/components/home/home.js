@@ -1,79 +1,192 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
 import './home.css';
 import API from '../../axios/api';
+import ReactDOM from 'react-dom';
 
 class Home extends Component {
-
-    constructor(props) {
-        super(props)
-        console.log(props)
-        this.state = { user: this.props.location.state.user, history:this.props.history}
-        console.log(this.state)
-        document.title = "Home"
+    constructor(props){
+        super(props);
+        this.state={userLoggedIn:props.userLoggedIn,history:props.history,posts:null}
     }
 
-    homeButtonHandler(){
+    timeDifference=(current, previous)=>{
 
-    }
-
-    searchButtonHandler(){
-
-    }
-
-    notificationButtonHandler(){
-
-    }
-
-    messageButtonHandler(){
-
-    }
-
-    profileButtonHandler(){
-
-    }
-
-    logoutButtonHandler(history){
-        let token = localStorage.getItem('token')
-        if(!token){
-            history.push('/login')
+        var msPerMinute = 60 * 1000;
+        var msPerHour = msPerMinute * 60;
+        var msPerDay = msPerHour * 24;
+        var msPerMonth = msPerDay * 30;
+        var msPerYear = msPerDay * 365;
+    
+        var elapsed = current - previous;
+    
+        if (elapsed < msPerMinute) {
+            if(elapsed/1000 < 30) return "Just now"
+            return Math.round(elapsed/1000) + ' seconds ago';   
         }
-        API.get('/logout',{
-            headers:{
-                'Authorization':'Bearer ' + token
+    
+        else if (elapsed < msPerHour) {
+             return Math.round(elapsed/msPerMinute) + ' minutes ago';   
+        }
+    
+        else if (elapsed < msPerDay ) {
+             return Math.round(elapsed/msPerHour ) + ' hours ago';   
+        }
+    
+        else if (elapsed < msPerMonth) {
+            return Math.round(elapsed/msPerDay) + ' days ago';   
+        }
+    
+        else if (elapsed < msPerYear) {
+            return Math.round(elapsed/msPerMonth) + ' months ago';   
+        }
+    
+        else {
+            return Math.round(elapsed/msPerYear ) + ' years ago';   
+        }
+    }
+
+    createPostHTML=(postData)=>{
+        //return postData.content
+        if(postData.postedBy._id === undefined){
+            return console.log("user object not populated")
+        }
+        var timestamp=this.timeDifference(new Date(),new Date(postData.createdAt));
+
+        var likeButtonActiveClass=postData.likes.includes(this.state.userLoggedIn._id)?"active":""
+
+        const postHTML=
+            <div className='post'>
+                <div className='mainContentContainer'>
+                    <div className='userImageContainer'>
+                        <img src={postData.postedBy.profilePic}/>
+                    </div>
+                    <div className='postContentContainer'>
+                        <div className='header'>
+                            <a href={'/profile/'+postData.postedBy.username} className='displayName'>{postData.postedBy.firstName+" "+postData.postedBy.lastName}</a>
+                            <span className='username'>@{postData.postedBy.username}</span>
+                            <span className='username'>{timestamp}</span>
+                        </div>
+                        <div className='postBody'>
+                            <span>{postData.content}</span>
+                        </div>
+                        <div className='postFooter'>
+                            <div className='postButtonContainer'>
+                                <button>
+                                    <i className='far fa-comment'></i>
+                                </button>
+                            </div>
+                            <div className='postButtonContainer green'>
+                                <button className='retweet'>
+                                    <i className='fas fa-retweet'></i>
+                                </button>
+                            </div>
+                            <div className='postButtonContainer red'>
+                                <button className={'likeButton '+likeButtonActiveClass} onClick={(event)=>{this.likeButtonClickHandler(postData,event)}}>
+                                    <i className='far fa-heart'></i>
+                                    <span>{postData.likes.length||""}</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+        return postHTML
+    }
+
+    likeButtonClickHandler=(post,event)=>{
+        var button = event.target
+        var postId = post._id
+        if(postId === undefined) return;
+        let jsonWebToken=localStorage.getItem('token')
+
+        if(!jsonWebToken){
+            return this.state.history.push('/logout')
+        }
+
+        const options = {
+            headers: {'Authorization': 'Bearer '+jsonWebToken}
+        }
+
+        API.put("/api/posts/"+postId+"/like",{},options).then((postData)=>{
+            button.querySelector("span").innerText=postData.data.likes.length || ""
+            if(postData.data.likes.includes(this.state.userLoggedIn._id))
+                button.classList.add("active")
+            else
+                button.classList.remove("active")
+        }).catch((error)=>{
+            console.log(error)
+        })
+    }
+
+    postButtonClickHandler=()=>{
+        var data={
+            content:document.getElementById("postTextarea").value
+        }
+
+        let jsonWebToken=localStorage.getItem('token')
+        if(!jsonWebToken){
+            return this.state.history.push('/logout')
+        }
+        
+        const options = {
+            headers: {'Authorization': 'Bearer '+jsonWebToken}
+          }
+
+        API.post("/api/posts",data,options).then((response)=>{
+            if(response && response.data){
+                this.setState(prevState=>({
+                    posts:[response.data,...prevState.posts,]
+                }))
+                document.getElementById("postTextarea").value=""
             }
+        }).catch((error)=>{
+
         })
-            .then((response)=>{
-            console.log(response)
+    }
+
+    componentDidMount(){
+
+        let jsonWebToken=localStorage.getItem('token')
+        if(!jsonWebToken){
+            return this.state.history.push('/logout')
+        }
+        
+        const options = {
+            headers: {'Authorization': 'Bearer '+jsonWebToken}
+          }
+
+        API.get("/api/posts",options).then((response)=>{
+            this.setState({posts:response.data})
+        }).catch((error)=>{
+
         })
-        .catch((error)=>{
-            console.log('error:'+error)
-        })
-        localStorage.removeItem('token')
-        history.push('/logout')
     }
 
     render() {
-
-        const user = this.state.user
-        const history = this.state.history
-        return (
-            <div className="homeContainer row">
-                <nav className="col-2">
-                    <a onClick={this.homeButtonHandler}><i className="fa fa-solid fa-dove"></i></a>
-                    <a onClick={this.searchButtonHandler}><i className="fa fa-solid fa-search"></i></a>
-                    <a onClick={this.notificationButtonHandler}><i className="fa fa-solid fa-bell"></i></a>
-                    <a onClick={this.messageButtonHandler}><i className="fa fa-solid fa-envelope"></i></a>
-                    <a onClick={this.profileButtonHandler}><i className="fa fa-solid fa-user"></i></a>
-                    <a onClick={()=>{this.logoutButtonHandler(history)}}><i className="fa fa-solid fa-sign-out-alt"></i></a>
-                </nav>
-                <div className="mainSectionContainer col-10 col-md-8 col-lg-6">
-                    <div className="titleContainer">
-                        <h1>{document.title}</h1>
+        let postForm = (
+            <div className="postFormContainer">
+                <div className="userImageContainer">
+                    <img src={this.state.userLoggedIn.profilePic} alt="User's profile pic"/>
+                </div>
+                <div className="textareaContainer">
+                    <textarea id="postTextarea" placeholder="What's happening?" onKeyUp={(event)=>{
+                        var value=event.target.value.trim();
+                        var submitButton=document.getElementById("submitPostButton")
+                        if(value.length !==0) submitButton.disabled=false
+                    }}/>
+                    <div className="buttonsContainer">
+                        <button id="submitPostButton" onClick={(event)=>{this.postButtonClickHandler()}}>Post</button>
                     </div>
                 </div>
-                <div className="d-none d-md-block col-md-2 col-lg-4">
-                    <span>third column</span>
+            </div>
+        )
+        return (
+            <div>
+                {postForm}
+                <div className="postsContainer" id="postsContainer">
+                    {/*this.state.posts*/}
+                    {this.state.posts && this.state.posts.map((post,index)=>this.createPostHTML(post))}
                 </div>
             </div>
         )
