@@ -47,15 +47,30 @@ class Home extends Component {
 
     createPostHTML=(postData)=>{
         //return postData.content
+        if(postData==null) return alert("null post data")
+
+        var isRetweet=postData.retweetData !== undefined
+        var retweetedBy=isRetweet?postData.postedBy.username:null;
+        postData=isRetweet?postData.retweetData:postData
+
         if(postData.postedBy._id === undefined){
             return console.log("user object not populated")
         }
         var timestamp=this.timeDifference(new Date(),new Date(postData.createdAt));
 
         var likeButtonActiveClass=postData.likes.includes(this.state.userLoggedIn._id)?"active":""
+        var retweetButtonActiveClass=postData.retweetUsers.includes(this.state.userLoggedIn._id)?"active":""
+
+        var retweetText=''
+        if(isRetweet){
+            retweetText=<span><i className='fas fa-retweet'></i> Retweeted by <a href={'/profile/'+{retweetedBy}}>@{retweetedBy}</a></span>
+        }
 
         const postHTML=
             <div className='post'>
+                <div className='postActionContainer'>
+                    {retweetText}
+                </div>
                 <div className='mainContentContainer'>
                     <div className='userImageContainer'>
                         <img src={postData.postedBy.profilePic}/>
@@ -76,8 +91,9 @@ class Home extends Component {
                                 </button>
                             </div>
                             <div className='postButtonContainer green'>
-                                <button className='retweet'>
+                                <button className={'retweetButton '+retweetButtonActiveClass} onClick={(event)=>{this.retweetButtonClickHandler(postData,event)}}>
                                     <i className='fas fa-retweet'></i>
+                                    <span>{postData.retweetUsers.length||""}</span>
                                 </button>
                             </div>
                             <div className='postButtonContainer red'>
@@ -92,6 +108,32 @@ class Home extends Component {
             </div>
         
         return postHTML
+    }
+
+    retweetButtonClickHandler=(post,event)=>{
+        var button = event.target
+        var postId = post._id
+        if(postId === undefined) return;
+        let jsonWebToken=localStorage.getItem('token')
+
+        if(!jsonWebToken){
+            return this.state.history.push('/logout')
+        }
+
+        const options = {
+            headers: {'Authorization': 'Bearer '+jsonWebToken}
+        }
+
+        API.post("/api/posts/"+postId+"/retweet",{},options).then((postData)=>{
+            console.log(postData)
+            button.querySelector("span").innerText=postData.data.retweetUsers.length || ""
+            if(postData.data.retweetUsers.includes(this.state.userLoggedIn._id))
+                button.classList.add("active")
+            else
+                button.classList.remove("active")
+        }).catch((error)=>{
+            console.log(error)
+        })
     }
 
     likeButtonClickHandler=(post,event)=>{
