@@ -2,11 +2,12 @@ import React, { Component } from 'react';
 import './home.css';
 import API from '../../axios/api';
 import ReactDOM from 'react-dom';
+import ReplyModal from '../modal/replyModal'
 
 class Home extends Component {
     constructor(props){
         super(props);
-        this.state={userLoggedIn:props.userLoggedIn,history:props.history,posts:null}
+        this.state={userLoggedIn:props.userLoggedIn,history:props.history,posts:null,showReplyModal:false,postToReply:null}
     }
 
     timeDifference=(current, previous)=>{
@@ -47,7 +48,7 @@ class Home extends Component {
 
     createPostHTML=(postData)=>{
         //return postData.content
-        if(postData==null) return alert("null post data")
+        if(postData==null) return //alert("null post data")
 
         var isRetweet=postData.retweetData !== undefined
         var retweetedBy=isRetweet?postData.postedBy.username:null;
@@ -66,6 +67,21 @@ class Home extends Component {
             retweetText=<span><i className='fas fa-retweet'></i> Retweeted by <a href={'/profile/'+{retweetedBy}}>@{retweetedBy}</a></span>
         }
 
+        var replyFlag=""
+        if(postData.replyTo){
+            if(!postData.replyTo._id){
+                return alert("id for reply not populated")
+            }
+            else if(!postData.replyTo.postedBy._id){
+                return alert("posted by is not populated")
+            }
+
+            var replyToUsername=postData.replyTo.postedBy.username
+            replyFlag=(<div className={replyFlag}>
+                Replying to <a href={'/profile/'+{replyToUsername}}>@{replyToUsername}</a>
+            </div>)
+        }
+
         const postHTML=
             <div className='post'>
                 <div className='postActionContainer'>
@@ -81,12 +97,13 @@ class Home extends Component {
                             <span className='username'>@{postData.postedBy.username}</span>
                             <span className='username'>{timestamp}</span>
                         </div>
+                        {replyFlag}
                         <div className='postBody'>
                             <span>{postData.content}</span>
                         </div>
                         <div className='postFooter'>
                             <div className='postButtonContainer'>
-                                <button>
+                                <button onClick={()=>{this.showReplyModal();this.setState({postToReply:postData})}}>
                                     <i className='far fa-comment'></i>
                                 </button>
                             </div>
@@ -205,6 +222,10 @@ class Home extends Component {
         })
     }
 
+    showReplyModal=()=>{this.setState({showReplyModal:true})}
+
+    hideReplyModal=()=>{this.setState({showReplyModal:false,postToReply:null})}
+
     render() {
         let postForm = (
             <div className="postFormContainer">
@@ -225,11 +246,13 @@ class Home extends Component {
         )
         return (
             <div>
+                
                 {postForm}
                 <div className="postsContainer" id="postsContainer">
                     {/*this.state.posts*/}
                     {this.state.posts && this.state.posts.map((post,index)=>this.createPostHTML(post))}
                 </div>
+                <ReplyModal createPostHTML={this.createPostHTML} userLoggedIn={this.state.userLoggedIn} show={this.state.showReplyModal} onHide={this.hideReplyModal} postData={this.state.postToReply} history={this.props.history}></ReplyModal>
             </div>
         )
     }

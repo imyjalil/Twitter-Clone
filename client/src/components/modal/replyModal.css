@@ -1,0 +1,13 @@
+:root{
+    --spacing:15px;
+}
+
+.modal-content .modal-body .postFormContainer{
+    border:none;
+    padding:0;
+    padding-top:var(--spacing);
+}
+
+.modal-content .modal-body .post{
+    padding:0 0 var(--spacing);
+}

@@ -75,7 +75,7 @@ class MainLayout extends Component
         let viewToRender=null
         switch(this.state.view){
             case HOME:
-                viewToRender=<Home userLoggedIn={user}/>
+                viewToRender=<Home userLoggedIn={user} history={this.state.history}/>
                 break;
 
             case SEARCH:
