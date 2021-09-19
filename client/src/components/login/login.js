@@ -1,17 +1,19 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import ReactDOM from 'react-dom';
-
 import API from '../../axios/api';
 import './login.css'
+import history from '../../history/history'
 
 class Login extends Component {
     constructor(props) {
         super(props);
         document.title = "Login"
     }
+    
     submitHandler = (event) => {
         event.preventDefault()
+        console.log(this.props)
         let data = {
             username: event.target.elements['logUsername'].value,
             password: event.target.elements['logPassword'].value
@@ -24,16 +26,15 @@ class Login extends Component {
                 }
                 else {
                     localStorage.setItem('token', response.data.token)
-                    this.props.history.push({
-                        pathname: "/home",
-                        state: { user: response.data.user }
-                    })
+                    this.props.setLoggedinUser(response.data.user)
+                    history.push("/home")
                 }
             }
             else {
                 ReactDOM.render('<p>Unknown error</p>', document.getElementById('error'))
             }
         }).catch((error) => {
+            console.log(error)
             if (error.response && error.response.data && error.response.data.errorMessage) {
                 ReactDOM.render(error.response.data.errorMessage, document.getElementById('error'))
             } else {

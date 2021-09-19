@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import './home.css';
 import API from '../../axios/api';
-import ReactDOM from 'react-dom';
 import ReplyModal from '../modal/replyModal'
+import history from '../../history/history'
 
 class Home extends Component {
     constructor(props){
         super(props);
-        this.state={userLoggedIn:props.userLoggedIn,history:props.history,posts:null,showReplyModal:false,postToReply:null}
+        this.state={userLoggedIn:props.userLoggedIn,posts:null,showReplyModal:false,postToReply:null}
     }
 
     timeDifference=(current, previous)=>{
@@ -77,7 +77,7 @@ class Home extends Component {
             }
 
             var replyToUsername=postData.replyTo.postedBy.username
-            replyFlag=(<div className={replyFlag}>
+            replyFlag=(<div className='replyFlag'>
                 Replying to <a href={'/profile/'+{replyToUsername}}>@{replyToUsername}</a>
             </div>)
         }
@@ -134,7 +134,7 @@ class Home extends Component {
         let jsonWebToken=localStorage.getItem('token')
 
         if(!jsonWebToken){
-            return this.state.history.push('/logout')
+            return history.push('/logout')
         }
 
         const options = {
@@ -160,7 +160,7 @@ class Home extends Component {
         let jsonWebToken=localStorage.getItem('token')
 
         if(!jsonWebToken){
-            return this.state.history.push('/logout')
+            return history.push('/logout')
         }
 
         const options = {
@@ -185,7 +185,7 @@ class Home extends Component {
 
         let jsonWebToken=localStorage.getItem('token')
         if(!jsonWebToken){
-            return this.state.history.push('/logout')
+            return history.push('/logout')
         }
         
         const options = {
@@ -208,7 +208,7 @@ class Home extends Component {
 
         let jsonWebToken=localStorage.getItem('token')
         if(!jsonWebToken){
-            return this.state.history.push('/logout')
+            return history.push('/logout')
         }
         
         const options = {
@@ -227,6 +227,7 @@ class Home extends Component {
     hideReplyModal=()=>{this.setState({showReplyModal:false,postToReply:null})}
 
     render() {
+        document.title="Home"
         let postForm = (
             <div className="postFormContainer">
                 <div className="userImageContainer">

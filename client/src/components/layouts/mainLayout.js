@@ -7,49 +7,52 @@ import Notifications from "../views/Notifications/notifications";
 import Profile from "../views/Profile/profile";
 import Search from "../views/Search/search";
 import Home from "../home/home"
+import history from '../../history/history'
 
 class MainLayout extends Component
 {
     constructor(props) {
         super(props)
-        console.log(props)
+        
         this.state = { 
-            user: props.location && props.location.state && props.location.state.user?props.location.state.user: null, 
-            history:props.history?props.history:null,
-            view:HOME
+            user: props.userLoggedIn?props.userLoggedIn:null
         }
-        document.title = "Home"
+        if(!this.state.user) history.push('/logout')
     }
-
+    componentDidMount(){
+        this.setState({view:this.props.view?this.props.view:HOME})
+    }
     homeButtonHandler=()=>{
+        history.push('/home')
         this.setState({view:HOME})
-        document.title = "Home"
     }
 
     searchButtonHandler=()=>{
+        history.push('/search')
         this.setState({view:SEARCH})
-        document.title = "Search"
     }
 
     notificationButtonHandler=()=>{
+        history.push('/notifications')
         this.setState({view:NOTIFICATIONS})
-        document.title = "Notifications"
+
     }
 
     messageButtonHandler=()=>{
+        history.push('/messages')
         this.setState({view:MESSAGES})
-        document.title = "Messages"
     }
 
     profileButtonHandler=()=>{
+        history.push('/profile')
         this.setState({view:PROFILE})
-        document.title = "Profile"
     }
 
     logoutButtonHandler=(history)=>{
         document.title = "Twitter"
         let token = localStorage.getItem('token')
         if(!token){
+            this.props.setLoggedinUser(null)
             history.push('/login')
         }
         API.get('/logout',{
@@ -58,24 +61,45 @@ class MainLayout extends Component
             }
         })
             .then((response)=>{
-            console.log(response)
+                this.props.setLoggedinUser(null)
+                localStorage.removeItem('token')
+                history.push('/logout')
+                console.log(response)
         })
         .catch((error)=>{
             console.log('error:'+error)
         })
-        localStorage.removeItem('token')
-        history.push('/logout')
+        
+    }
+
+    renderPageTitle=()=>{
+        switch(this.state.view){
+            case HOME:
+                return 'Home'
+
+            case SEARCH:
+                return 'Search'
+            
+            case NOTIFICATIONS:
+                return 'Notifications'
+
+            case MESSAGES:
+                return 'Messages'
+
+            case PROFILE:
+                return 'Profile'
+        }
+
     }
 
     render()
     {
         const user = this.state.user
-        const history = this.state.history
 
         let viewToRender=null
         switch(this.state.view){
             case HOME:
-                viewToRender=<Home userLoggedIn={user} history={this.state.history}/>
+                viewToRender=<Home userLoggedIn={user} history={history}/>
                 break;
 
             case SEARCH:
@@ -90,7 +114,7 @@ class MainLayout extends Component
                 viewToRender=<Messages/>
                 break;
 
-            case Profile:
+            case PROFILE:
                 viewToRender=<Profile/>
                 break;
         }
@@ -107,7 +131,7 @@ class MainLayout extends Component
                 </nav>
                 <div className="mainSectionContainer col-10 col-md-8 col-lg-6">
                     <div className="titleContainer">
-                        <h1>{document.title}</h1>
+                        <h1>{this.renderPageTitle()}</h1>
                     </div>
                     {viewToRender}
                 </div>

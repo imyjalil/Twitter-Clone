@@ -1,14 +1,19 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import ReactDOM from 'react-dom';
-
 import API from '../../axios/api';
 import './register.css'
+import history from '../../history/history'
 
 class Register extends Component {
     constructor(props) {
         super(props);
         document.title = "Register"
+    }
+
+    componentDidMount()
+    {
+        console.log('register component')
     }
 
     validatePassword() {
@@ -41,7 +46,7 @@ class Register extends Component {
             }
             else {
                 console.log('redirecting to login')
-                this.props.history.push("/login")
+                history.push("/login")
             }
         }
         else {

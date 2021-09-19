@@ -1,28 +1,32 @@
-import { BrowserRouter } from 'react-router-dom';
 import React, { Component } from 'react';
-import { Route,Switch } from 'react-router-dom';
+import { Route,Switch,Router } from 'react-router-dom';
 import './App.css';
 import Login from './components/login/login';
 import Register from './components/register/register'
-import Welcome from './components/welcome/welcome'
 import MainLayout from './components/layouts/mainLayout'
+import {createBrowserHistory} from 'history'
 
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = {}
+    this.state = {user:null}
+  }
+  setLoggedinUser=(userLoggedIn)=>{
+    this.setState({user:userLoggedIn})
   }
   render() {
+    console.log(window.location.pathname)
+    const history=createBrowserHistory()
     return (
-      <BrowserRouter>
+      <Router history={history}>
+        {this.state.user && <MainLayout {...this.props} setLoggedinUser={this.setLoggedinUser} userLoggedIn={this.state.user}/>}
         <Switch>
-        <Route path="/logout" component={Login} />
-        <Route path="/login" component={Login} />
-        <Route path="/register" component={Register}/>
-        <Route path="/" exact component={Welcome} />
-        <Route render={(props) => <MainLayout {...props} />} />
+          <Route path="/logout" render={(props)=><Login {...props} setLoggedinUser={this.setLoggedinUser}/>} />
+          <Route path="/login" render={(props)=><Login {...props} setLoggedinUser={this.setLoggedinUser}/>} />
+          <Route path="/register" render ={()=><Register/>}/>
+          {!this.state.user && <Route render={(props)=><Login {...props} setLoggedinUser={this.setLoggedinUser}/>} />}
         </Switch>
-      </BrowserRouter>
+      </Router>
     )
   }
 }

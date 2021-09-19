@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import {Button,Modal} from 'react-bootstrap';
 import './replyModal.css'
 import API from '../../axios/api';
+import history from '../../history/history'
 
 class ReplyModal extends Component
 {
@@ -18,7 +19,7 @@ class ReplyModal extends Component
     data.replyTo=postData._id
     let jsonWebToken=localStorage.getItem('token')
     if(!jsonWebToken){
-        return this.state.history.push('/logout')
+        return history.push('/logout')
     }
     
     const options = {
