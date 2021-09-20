@@ -68,3 +68,11 @@ nav a:hover{
 .titleContainer h1{
     flex:1;
 }
+
+.header{
+    display:flex;
+}
+
+.header .date{
+    flex:1;
+}

@@ -102,6 +102,16 @@ router.post("/:id/retweet", auth, async (req, res, next) => {
     return res.status(200).send(post)
 })
 
+router.delete("/:id",auth,async(req,res,next)=>{
+    var postId=req.params.id
+    Post.findByIdAndDelete(postId)
+        .then(()=>res.sendStatus(202))
+        .catch(error=>{
+            console.log(error)
+            res.sendStatus(400)
+        })
+})
+
 async function getPosts(filter){
     var results = await Post.find(filter)
     .populate("postedBy")

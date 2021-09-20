@@ -1,13 +1,14 @@
 import { Component } from "react";
 import './mainLayout.css';
 import API from '../../axios/api'
-import {HOME,SEARCH,MESSAGES,NOTIFICATIONS,PROFILE} from '../../constants'
+import {HOME,SEARCH,MESSAGES,NOTIFICATIONS,PROFILE,POST} from '../../constants'
 import Messages from "../views/Messages/messages";
 import Notifications from "../views/Notifications/notifications";
 import Profile from "../views/Profile/profile";
 import Search from "../views/Search/search";
 import Home from "../home/home"
 import history from '../../history/history'
+import Post from '../post/post'
 
 class MainLayout extends Component
 {
@@ -64,12 +65,15 @@ class MainLayout extends Component
                 this.props.setLoggedinUser(null)
                 localStorage.removeItem('token')
                 history.push('/logout')
-                console.log(response)
         })
         .catch((error)=>{
             console.log('error:'+error)
         })
         
+    }
+
+    setView=(nextView)=>{
+        this.setState({view:nextView})
     }
 
     renderPageTitle=()=>{
@@ -88,6 +92,9 @@ class MainLayout extends Component
 
             case PROFILE:
                 return 'Profile'
+
+            case POST:
+                return 'View Post'
         }
 
     }
@@ -99,7 +106,7 @@ class MainLayout extends Component
         let viewToRender=null
         switch(this.state.view){
             case HOME:
-                viewToRender=<Home userLoggedIn={user} history={history}/>
+                viewToRender=<Home userLoggedIn={user} history={history} setView={this.setView}/>
                 break;
 
             case SEARCH:
@@ -116,6 +123,10 @@ class MainLayout extends Component
 
             case PROFILE:
                 viewToRender=<Profile/>
+                break;
+
+            case POST:
+                viewToRender=<Post userLoggedIn={user}/>
                 break;
         }
 

@@ -15,7 +15,6 @@ class App extends Component {
     this.setState({user:userLoggedIn})
   }
   render() {
-    console.log(window.location.pathname)
     const history=createBrowserHistory()
     return (
       <Router history={history}>

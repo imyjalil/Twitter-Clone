@@ -13,7 +13,7 @@ class Register extends Component {
 
     componentDidMount()
     {
-        console.log('register component')
+        
     }
 
     validatePassword() {

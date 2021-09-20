@@ -13,7 +13,6 @@ class Login extends Component {
     
     submitHandler = (event) => {
         event.preventDefault()
-        console.log(this.props)
         let data = {
             username: event.target.elements['logUsername'].value,
             password: event.target.elements['logPassword'].value

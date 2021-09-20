@@ -1,130 +1,26 @@
 import React, { Component } from 'react';
 import './home.css';
 import API from '../../axios/api';
-import ReplyModal from '../modal/replyModal'
+import ReplyModal from '../modal/reply/replyModal'
+import DeleteModal from '../modal/delete/deleteModal';
 import history from '../../history/history'
+import {POST} from '../../constants'
+import {createPostHTML} from '../../common/commonUtilities'
 
 class Home extends Component {
     constructor(props){
         super(props);
-        this.state={userLoggedIn:props.userLoggedIn,posts:null,showReplyModal:false,postToReply:null}
+        this.state={userLoggedIn:props.userLoggedIn,posts:null,showReplyModal:false,postToReply:null,showDeleteModal:false,postIdToDelete:null}
     }
 
-    timeDifference=(current, previous)=>{
-
-        var msPerMinute = 60 * 1000;
-        var msPerHour = msPerMinute * 60;
-        var msPerDay = msPerHour * 24;
-        var msPerMonth = msPerDay * 30;
-        var msPerYear = msPerDay * 365;
-    
-        var elapsed = current - previous;
-    
-        if (elapsed < msPerMinute) {
-            if(elapsed/1000 < 30) return "Just now"
-            return Math.round(elapsed/1000) + ' seconds ago';   
+    postClickHandler=(postData,event)=>{
+        if(event.target.tagName ===  "BUTTON") return
+        var postId=postData._id
+        if(postId !== undefined)
+        {
+            this.props.history.push('/post/'+postId)
+            this.props.setView(POST)
         }
-    
-        else if (elapsed < msPerHour) {
-             return Math.round(elapsed/msPerMinute) + ' minutes ago';   
-        }
-    
-        else if (elapsed < msPerDay ) {
-             return Math.round(elapsed/msPerHour ) + ' hours ago';   
-        }
-    
-        else if (elapsed < msPerMonth) {
-            return Math.round(elapsed/msPerDay) + ' days ago';   
-        }
-    
-        else if (elapsed < msPerYear) {
-            return Math.round(elapsed/msPerMonth) + ' months ago';   
-        }
-    
-        else {
-            return Math.round(elapsed/msPerYear ) + ' years ago';   
-        }
-    }
-
-    createPostHTML=(postData)=>{
-        //return postData.content
-        if(postData==null) return //alert("null post data")
-
-        var isRetweet=postData.retweetData !== undefined
-        var retweetedBy=isRetweet?postData.postedBy.username:null;
-        postData=isRetweet?postData.retweetData:postData
-
-        if(postData.postedBy._id === undefined){
-            return console.log("user object not populated")
-        }
-        var timestamp=this.timeDifference(new Date(),new Date(postData.createdAt));
-
-        var likeButtonActiveClass=postData.likes.includes(this.state.userLoggedIn._id)?"active":""
-        var retweetButtonActiveClass=postData.retweetUsers.includes(this.state.userLoggedIn._id)?"active":""
-
-        var retweetText=''
-        if(isRetweet){
-            retweetText=<span><i className='fas fa-retweet'></i> Retweeted by <a href={'/profile/'+{retweetedBy}}>@{retweetedBy}</a></span>
-        }
-
-        var replyFlag=""
-        if(postData.replyTo){
-            if(!postData.replyTo._id){
-                return alert("id for reply not populated")
-            }
-            else if(!postData.replyTo.postedBy._id){
-                return alert("posted by is not populated")
-            }
-
-            var replyToUsername=postData.replyTo.postedBy.username
-            replyFlag=(<div className='replyFlag'>
-                Replying to <a href={'/profile/'+{replyToUsername}}>@{replyToUsername}</a>
-            </div>)
-        }
-
-        const postHTML=
-            <div className='post'>
-                <div className='postActionContainer'>
-                    {retweetText}
-                </div>
-                <div className='mainContentContainer'>
-                    <div className='userImageContainer'>
-                        <img src={postData.postedBy.profilePic}/>
-                    </div>
-                    <div className='postContentContainer'>
-                        <div className='header'>
-                            <a href={'/profile/'+postData.postedBy.username} className='displayName'>{postData.postedBy.firstName+" "+postData.postedBy.lastName}</a>
-                            <span className='username'>@{postData.postedBy.username}</span>
-                            <span className='username'>{timestamp}</span>
-                        </div>
-                        {replyFlag}
-                        <div className='postBody'>
-                            <span>{postData.content}</span>
-                        </div>
-                        <div className='postFooter'>
-                            <div className='postButtonContainer'>
-                                <button onClick={()=>{this.showReplyModal();this.setState({postToReply:postData})}}>
-                                    <i className='far fa-comment'></i>
-                                </button>
-                            </div>
-                            <div className='postButtonContainer green'>
-                                <button className={'retweetButton '+retweetButtonActiveClass} onClick={(event)=>{this.retweetButtonClickHandler(postData,event)}}>
-                                    <i className='fas fa-retweet'></i>
-                                    <span>{postData.retweetUsers.length||""}</span>
-                                </button>
-                            </div>
-                            <div className='postButtonContainer red'>
-                                <button className={'likeButton '+likeButtonActiveClass} onClick={(event)=>{this.likeButtonClickHandler(postData,event)}}>
-                                    <i className='far fa-heart'></i>
-                                    <span>{postData.likes.length||""}</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        
-        return postHTML
     }
 
     retweetButtonClickHandler=(post,event)=>{
@@ -142,7 +38,6 @@ class Home extends Component {
         }
 
         API.post("/api/posts/"+postId+"/retweet",{},options).then((postData)=>{
-            console.log(postData)
             button.querySelector("span").innerText=postData.data.retweetUsers.length || ""
             if(postData.data.retweetUsers.includes(this.state.userLoggedIn._id))
                 button.classList.add("active")
@@ -226,6 +121,14 @@ class Home extends Component {
 
     hideReplyModal=()=>{this.setState({showReplyModal:false,postToReply:null})}
 
+    showDeleteModal=()=>{this.setState({showDeleteModal:true})}
+
+    hideDeleteModal=()=>{this.setState({showDeleteModal:false,postIdToDelete:null})}
+
+    setPostToReply=(postData)=>{this.setState({postToReply:postData})}
+
+    setPostToDelete=(postId)=>{this.setState({postIdToDelete:postId})}
+
     render() {
         document.title="Home"
         let postForm = (
@@ -251,9 +154,10 @@ class Home extends Component {
                 {postForm}
                 <div className="postsContainer" id="postsContainer">
                     {/*this.state.posts*/}
-                    {this.state.posts && this.state.posts.map((post,index)=>this.createPostHTML(post))}
+                    {this.state.posts && this.state.posts.map((post,index)=>createPostHTML(post,this.state.userLoggedIn,this.postClickHandler,this.showReplyModal,this.showDeleteModal,this.setPostToReply,this.retweetButtonClickHandler,this.likeButtonClickHandler,this.setPostToDelete,index))}
                 </div>
-                <ReplyModal createPostHTML={this.createPostHTML} userLoggedIn={this.state.userLoggedIn} show={this.state.showReplyModal} onHide={this.hideReplyModal} postData={this.state.postToReply} history={this.props.history}></ReplyModal>
+                <ReplyModal createPostHTML={createPostHTML} userLoggedIn={this.state.userLoggedIn} show={this.state.showReplyModal} onHide={this.hideReplyModal} postData={this.state.postToReply} history={this.props.history}></ReplyModal>
+                <DeleteModal show={this.state.showDeleteModal} onHide={this.hideDeleteModal} postId={this.state.postIdToDelete} setPostToDelete={this.setPostToDelete}/>
             </div>
         )
     }

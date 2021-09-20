@@ -1,8 +1,8 @@
 import React, {Component} from 'react';
 import {Button,Modal} from 'react-bootstrap';
 import './replyModal.css'
-import API from '../../axios/api';
-import history from '../../history/history'
+import API from '../../../axios/api';
+import history from '../../../history/history'
 
 class ReplyModal extends Component
 {
@@ -50,7 +50,7 @@ class ReplyModal extends Component
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        {this.props.createPostHTML(this.props.postData)}
+        {this.props.createPostHTML(this.props.postData,this.props.userLoggedIn)}
       <div className="postFormContainer">
                 <div className="userImageContainer">
                     <img src={this.props.userLoggedIn.profilePic} alt="User's profile pic"/>

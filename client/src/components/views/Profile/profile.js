@@ -4,7 +4,7 @@ class Profile extends Component
 {
     componentDidMount()
     {
-        console.log("profile component mounted")
+        
     }
     render(){
         document.title="Profile"
