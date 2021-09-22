@@ -14,7 +14,7 @@ class Home extends Component {
     }
 
     postClickHandler=(postData,event)=>{
-        if(event.target.tagName ===  "BUTTON") return
+        if(event.target.tagName ===  "BUTTON" || event.target.tagName==='A') return
         var postId=postData._id
         if(postId !== undefined)
         {
@@ -154,7 +154,7 @@ class Home extends Component {
                 {postForm}
                 <div className="postsContainer" id="postsContainer">
                     {/*this.state.posts*/}
-                    {this.state.posts && this.state.posts.map((post,index)=>createPostHTML(post,this.state.userLoggedIn,this.postClickHandler,this.showReplyModal,this.showDeleteModal,this.setPostToReply,this.retweetButtonClickHandler,this.likeButtonClickHandler,this.setPostToDelete,index))}
+                    {this.state.posts && this.state.posts.map((post,index)=>createPostHTML(post,this.state.userLoggedIn,this.postClickHandler,this.showReplyModal,this.showDeleteModal,this.setPostToReply,this.retweetButtonClickHandler,this.likeButtonClickHandler,this.setPostToDelete,this.props.setView,index))}
                 </div>
                 <ReplyModal createPostHTML={createPostHTML} userLoggedIn={this.state.userLoggedIn} show={this.state.showReplyModal} onHide={this.hideReplyModal} postData={this.state.postToReply} history={this.props.history}></ReplyModal>
                 <DeleteModal show={this.state.showDeleteModal} onHide={this.hideDeleteModal} postId={this.state.postIdToDelete} setPostToDelete={this.setPostToDelete}/>

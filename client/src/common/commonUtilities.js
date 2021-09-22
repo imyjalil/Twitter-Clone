@@ -1,3 +1,6 @@
+import {Link} from 'react-router-dom'
+import {PROFILE} from '../constants'
+
 let timeDifference=(current, previous)=>{
 
     var msPerMinute = 60 * 1000;
@@ -34,7 +37,7 @@ let timeDifference=(current, previous)=>{
     }
 }
 
-export function createPostHTML(postData,userLoggedIn,postClickHandler,showReplyModal,showDeleteModal,setPostToReply,retweetButtonClickHandler,likeButtonClickHandler,setPostToDelete,index){
+export function createPostHTML(postData,userLoggedIn,postClickHandler,showReplyModal,showDeleteModal,setPostToReply,retweetButtonClickHandler,likeButtonClickHandler,setPostToDelete,setView,index){
     //return postData.content
     if(postData==null) return //alert("null post data")
 
@@ -52,7 +55,7 @@ export function createPostHTML(postData,userLoggedIn,postClickHandler,showReplyM
 
     var retweetText=''
     if(isRetweet){
-        retweetText=<span><i className='fas fa-retweet'></i> Retweeted by <a href={'/profile/'+{retweetedBy}}>@{retweetedBy}</a></span>
+        retweetText=<span><i className='fas fa-retweet'></i> Retweeted by <Link to={'/profile/'+retweetedBy} onClick={()=>{setView(PROFILE)}}>@{retweetedBy}</Link></span>
     }
     
     var replyFlag=""
@@ -66,7 +69,7 @@ export function createPostHTML(postData,userLoggedIn,postClickHandler,showReplyM
 
         var replyToUsername=postData.replyTo.postedBy.username
         replyFlag=(<div className='replyFlag'>
-            Replying to <a href={'/profile/'+{replyToUsername}}>@{replyToUsername}</a>
+            Replying to <Link to={'/profile/'+replyToUsername} onClick={()=>{setView(PROFILE)}}>@{replyToUsername}</Link>
         </div>)
     }
     var buttons="";
@@ -86,7 +89,7 @@ export function createPostHTML(postData,userLoggedIn,postClickHandler,showReplyM
                 </div>
                 <div className='postContentContainer'>
                     <div className='header'>
-                        <a href={'/profile/'+postData.postedBy.username} className='displayName'>{postData.postedBy.firstName+" "+postData.postedBy.lastName}</a>
+                        <Link to={'/profile/'+postData.postedBy.username} className='displayName' onClick={()=>{setView(PROFILE)}}>{postData.postedBy.firstName+" "+postData.postedBy.lastName}</Link>
                         <span className='username'>@{postData.postedBy.username}</span>
                         <span className='date'>{timestamp}</span>
                         {buttons}

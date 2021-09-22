@@ -17,7 +17,7 @@ class App extends Component {
   render() {
     const history=createBrowserHistory()
     return (
-      <Router history={history}>
+      <div>
         {this.state.user && <MainLayout {...this.props} setLoggedinUser={this.setLoggedinUser} userLoggedIn={this.state.user}/>}
         <Switch>
           <Route path="/logout" render={(props)=><Login {...props} setLoggedinUser={this.setLoggedinUser}/>} />
@@ -25,7 +25,7 @@ class App extends Component {
           <Route path="/register" render ={()=><Register/>}/>
           {!this.state.user && <Route render={(props)=><Login {...props} setLoggedinUser={this.setLoggedinUser}/>} />}
         </Switch>
-      </Router>
+        </div>
     )
   }
 }
