@@ -19,6 +19,8 @@ class App extends Component {
     return (
       <div>
         {this.state.user && <MainLayout {...this.props} setLoggedinUser={this.setLoggedinUser} userLoggedIn={this.state.user}/>}
+        {console.log("user:")}
+        {console.log(this.state.user)}
         <Switch>
           <Route path="/logout" render={(props)=><Login {...props} setLoggedinUser={this.setLoggedinUser}/>} />
           <Route path="/login" render={(props)=><Login {...props} setLoggedinUser={this.setLoggedinUser}/>} />

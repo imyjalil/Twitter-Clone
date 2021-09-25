@@ -122,7 +122,7 @@ class MainLayout extends Component
                 break;
 
             case PROFILE:
-                viewToRender=<Profile/>
+                viewToRender=<Profile userLoggedIn={user}/>
                 break;
 
             case POST:

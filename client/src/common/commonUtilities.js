@@ -123,3 +123,10 @@ export function createPostHTML(postData,userLoggedIn,postClickHandler,showReplyM
     
     return postHTML
 }
+
+export function createTab(name, href, isSelected, tabHandler, setPosts, profileUser){
+    var className=isSelected?"tab active":"tab"
+    return (<Link to={href} className={className} onClick={()=>{tabHandler(name);setPosts(profileUser);}}>
+        <span>{name}</span>
+    </Link>)
+}
