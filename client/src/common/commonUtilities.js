@@ -1,5 +1,7 @@
 import {Link} from 'react-router-dom'
 import {PROFILE} from '../constants'
+import API from '../axios/api'
+import history from '../history/history'
 
 let timeDifference=(current, previous)=>{
 
@@ -129,4 +131,51 @@ export function createTab(name, href, isSelected, tabHandler, setPosts, profileU
     return (<Link to={href} className={className} onClick={()=>{tabHandler(name);setPosts(profileUser);}}>
         <span>{name}</span>
     </Link>)
+}
+
+export function getAuthorizationHeader()
+{
+    let jsonWebToken=localStorage.getItem('token')
+
+    if(!jsonWebToken){
+        return history.push('/logout')
+    }
+
+    const options = {
+        headers: {'Authorization': 'Bearer '+jsonWebToken}
+    }
+
+    return options
+}
+
+export function createFollowButton(user, isFollowing){
+    var text =isFollowing?"Following":"Follow"
+    var buttonClass=isFollowing?"followButton following":"followButton"
+    return (<button className={buttonClass} onClick={(event)=>{
+        var userId=user._id
+        var options=getAuthorizationHeader()
+        API.put('/api/users/'+userId+'/follow',{},options).then((response)=>{
+            if(response.status==404){
+                //handle not found
+                return
+            }
+            var button =event.target
+            var data=response.data
+            var difference=1
+            if(data.following && data.following.includes(userId)){
+                button.classList.add("following")
+                button.textContent="Following"
+            }
+            else{
+                button.classList.remove("following")
+                button.textContent="Follow"
+                difference=-1
+            }
+            var followersLabel=document.getElementById("followersValue")
+            if(followersLabel.length!=0){
+                //followersLabel.text="hi"
+                followersLabel.textContent=parseInt(followersLabel.textContent)+difference
+            }
+        })
+    }}>{text}</button>)
 }

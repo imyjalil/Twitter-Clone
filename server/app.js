@@ -19,6 +19,7 @@ const logoutRoute = require('./routes/logoutRoute')
 //API routes
 const postsApiRoute=require("./routes/api/posts")
 const profileAPIRoute=require("./routes/api/profile")
+const usersApiRoute=require("./routes/api/users")
 
 app.use("/login", loginRoute)
 app.use("/register", registerRoute)
@@ -26,3 +27,4 @@ app.use("/logout",logoutRoute)
 
 app.use("/api/posts",postsApiRoute)
 app.use("/profile",profileAPIRoute)
+app.use("/api/users",usersApiRoute)

@@ -107,6 +107,7 @@ class Home extends Component {
         }
         
         const options = {
+            params:{followingOnly:true},
             headers: {'Authorization': 'Bearer '+jsonWebToken}
           }
 

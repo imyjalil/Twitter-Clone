@@ -3,7 +3,7 @@ import API from '../../../axios/api'
 import history from '../../../history/history'
 import './profile.css'
 import {Link} from 'react-router-dom';
-import {createTab,createPostHTML} from '../../../common/commonUtilities'
+import {createTab,createPostHTML,createFollowButton} from '../../../common/commonUtilities'
 
 class Profile extends Component
 {
@@ -14,7 +14,6 @@ class Profile extends Component
     
     componentDidMount()
     {
-        console.log('profile mounted')
         var urlList=window.location.pathname.split('/')
         var username=urlList.length===2?this.props.userLoggedIn.username:urlList[2]
         console.log(username)
@@ -32,7 +31,6 @@ class Profile extends Component
         var profileUser=null
 
         API.get('/profile/'+username,options).then((response)=>{
-            console.log("profile response:")
             console.log(response.data)
             
             if(response.data.errorMessage)
@@ -88,12 +86,6 @@ class Profile extends Component
         }
     }
 
-    createFollowButton(user, isFollowing){
-        var text =isFollowing?"Following":"Follow"
-        var buttonClass=isFollowing?"followButton following":"followButton"
-        return (<button className={buttonClass} >{text}</button>)
-    }
-
     render(){
         document.title="Profile"
         if(!this.state.profileUser)
@@ -105,7 +97,9 @@ class Profile extends Component
         var profileUser=this.state.profileUser
         var userLoggedIn=this.state.userLoggedIn
         var isFollowing=false
-        
+        var followersCount=profileUser.followers.length
+        var followingCount=profileUser.following.length
+
         return (
             <div>
                 <div className="profileHeaderContainer">
@@ -120,7 +114,7 @@ class Profile extends Component
                             <i className="fas fa-envelope" aria-hidden="true"/>
                         </Link>:null}
                         {profileUser && userLoggedIn && profileUser._id != userLoggedIn._id?
-                        this.createFollowButton(profileUser,isFollowing):null}
+                        createFollowButton(profileUser,isFollowing):null}
                     </div>
                     <div className="userDetailsContainer">
                         <span className="displayName">{profileUser.firstName} {profileUser.lastName}</span>
@@ -128,11 +122,11 @@ class Profile extends Component
                         <span className="description">{profileUser.description}</span>
                         <div className="followersContainer">
                             <Link to={"/profile/"+profileUser.username+"/following"}>
-                                <span className="value">0</span>
+                                <span className="value">{followingCount}</span>
                                 <span> Following</span>
                             </Link>
                             <Link to={"/profile/"+profileUser.username+"/followers"}>
-                                <span className="value">0</span>
+                                <span id="followersValue" className="value">{followersCount}</span>
                                 <span> Followers</span>
                             </Link>
                         </div>

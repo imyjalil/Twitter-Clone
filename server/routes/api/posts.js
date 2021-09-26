@@ -15,8 +15,22 @@ router.get("/",auth,async(req,res,next)=>{
         searchObj.replyTo={$exists:isReply}
         delete searchObj.isReply
     }
-    console.log("searchobj:")
-    console.log(searchObj)
+
+    if(searchObj.followingOnly !== undefined){
+        var followingOnly=searchObj.followingOnly=="true"
+        if(followingOnly){
+            var objectIds=[]
+            if(!req.user.following){
+                req.user.following=[]
+            }
+            req.user.following.forEach(user=>{
+                objectIds.push(user._id)
+            })
+            objectIds.push(req.user._id)
+            searchObj.postedBy={$in:objectIds}
+        }
+        delete searchObj.followingOnly
+    }
     var results = await getPosts(searchObj);
     res.status(200).send(results);
 })
@@ -29,7 +43,6 @@ router.get("/:id",auth,async(req,res,next)=>{
 })
 
 router.post("/", auth, async (req, res, next) => {
-    console.log(req.body)
     if(!req.body.content){
         return res.sendStatus(400)
     }

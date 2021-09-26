@@ -17,8 +17,9 @@ const UserSchema = new Schema({
         }
     }],
     likes:[{type:Schema.Types.ObjectId,ref:'Post'}],
-    retweets:[{type:Schema.Types.ObjectId,ref:'Post'}]
-
+    retweets:[{type:Schema.Types.ObjectId,ref:'Post'}],
+    following:[{type:Schema.Types.ObjectId,ref:'User'}],
+    followers:[{type:Schema.Types.ObjectId,ref:'User'}]
 }, { timestamps: true })
 
 UserSchema.methods.generateAuthToken = async function () {
@@ -64,7 +65,7 @@ UserSchema.statics.findByCredentials = async (username, password) => {
     if (!user) {
         throw new Error("Invalid credentials")
     }
-    console.log(user)
+    
     const isMatch = await bcrypt.compare(password, user.password)
     if (!isMatch) {
         throw new Error("Invalid credentials")
