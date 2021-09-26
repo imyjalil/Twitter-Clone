@@ -18,12 +18,25 @@
     background-color:var(--blue);
 }
 
+.userImageContainer{
+    width:50px;
+    height:50px;
+}
+
+.userImageContainer img{
+    width:100%;
+    border-radius:50%;
+    background-color:white;
+}
+
 .profileHeaderContainer .userImageContainer{
     height:132px;
     width:132px;
     margin-left:var(--spacing);
     position:absolute;
-    
+    display:flex;
+    align-items:center;
+    justify-content:center;
 }
 
 .profileHeaderContainer .userImageContainer img{
@@ -104,4 +117,15 @@
 .tab:hover{
     color:var(--blue);
     background-color:var(--blueBackground);
+}
+
+.profilePicButton{
+    position:absolute;
+    font-size:50px;
+    color:rgba(0,0,0,0.6);
+    display: none;
+}
+
+.userImageContainer:hover .profilePicButton{
+    display:block;
 }

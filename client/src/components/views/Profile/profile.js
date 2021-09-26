@@ -4,12 +4,13 @@ import history from '../../../history/history'
 import './profile.css'
 import {Link} from 'react-router-dom';
 import {createTab,createPostHTML,createFollowButton} from '../../../common/commonUtilities'
+import ImageUploadModal  from '../../modal/imageUpload/imageUploadModal'
 
 class Profile extends Component
 {
     constructor(props){
         super(props)
-        this.state={userLoggedIn:null,profileUser:null,posts:null,repliesTab:false,selectedTab:"Posts"};
+        this.state={userLoggedIn:null,profileUser:null,posts:null,repliesTab:false,selectedTab:"Posts",imageUploadModal:false};
     }
     
     componentDidMount()
@@ -86,6 +87,14 @@ class Profile extends Component
         }
     }
 
+    showImageUploadModal=()=>{
+        this.setState({imageUploadModal:true})
+    }
+
+    hideImageUploadModal=()=>{
+        this.setState({imageUploadModal:false})
+    }
+
     render(){
         document.title="Profile"
         if(!this.state.profileUser)
@@ -99,6 +108,13 @@ class Profile extends Component
         var isFollowing=false
         var followersCount=profileUser.followers.length
         var followingCount=profileUser.following.length
+        var profilePicButton=null
+
+        if(profileUser._id==userLoggedIn._id){
+            profilePicButton=(<button className="profilePicButton" onClick={this.showImageUploadModal}>
+                <i className="fas fa-camera"/>
+            </button>)
+        }
 
         return (
             <div>
@@ -106,6 +122,7 @@ class Profile extends Component
                     <div className="coverPhotoContainer">
                         <div className="userImageContainer">
                             <img src={profileUser.profilePic} alt="User's profile image"/>
+                            {profilePicButton}
                         </div>
                     </div>
                     <div className="profileButtonsContainer">
@@ -140,6 +157,7 @@ class Profile extends Component
                     {this.state.posts && this.state.posts.map((post,index)=>createPostHTML(post,userLoggedIn,null,null,null,null,null,null,null,null,index))}
                     {!this.state.posts && "Nothing to show"}
                 </div>
+                <ImageUploadModal show={this.state.imageUploadModal} onHide={this.hideImageUploadModal}/>
             </div>
         )
     }
