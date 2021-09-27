@@ -3,6 +3,7 @@ import './home.css';
 import API from '../../axios/api';
 import ReplyModal from '../modal/reply/replyModal'
 import DeleteModal from '../modal/delete/deleteModal';
+import PinnedPostModal from '../modal/pinnedPost/pinnedPostModal';
 import history from '../../history/history'
 import {POST} from '../../constants'
 import {createPostHTML} from '../../common/commonUtilities'
@@ -10,7 +11,7 @@ import {createPostHTML} from '../../common/commonUtilities'
 class Home extends Component {
     constructor(props){
         super(props);
-        this.state={userLoggedIn:props.userLoggedIn,posts:null,showReplyModal:false,postToReply:null,showDeleteModal:false,postIdToDelete:null}
+        this.state={userLoggedIn:props.userLoggedIn,posts:null,showReplyModal:false,postToReply:null,showDeleteModal:false,postIdToDelete:null,pinnedPostModal:false,pinnedPostId:null}
     }
 
     postClickHandler=(postData,event)=>{
@@ -130,6 +131,18 @@ class Home extends Component {
 
     setPostToDelete=(postId)=>{this.setState({postIdToDelete:postId})}
 
+    showPinnedPostModal=()=>{
+        this.setState({pinnedPostModal:true})
+    }
+
+    hidePinnedPostModal=()=>{
+        this.setState({pinnedPostModal:false})
+    }
+
+    setPostToPin=(postId)=>{
+        this.setState({pinnedPostId:postId})
+    }
+
     render() {
         document.title="Home"
         let postForm = (
@@ -155,10 +168,11 @@ class Home extends Component {
                 {postForm}
                 <div className="postsContainer" id="postsContainer">
                     {/*this.state.posts*/}
-                    {this.state.posts && this.state.posts.map((post,index)=>createPostHTML(post,this.state.userLoggedIn,this.postClickHandler,this.showReplyModal,this.showDeleteModal,this.setPostToReply,this.retweetButtonClickHandler,this.likeButtonClickHandler,this.setPostToDelete,this.props.setView,index))}
+                    {this.state.posts && this.state.posts.map((post,index)=>createPostHTML(post,this.state.userLoggedIn,this.postClickHandler,this.showReplyModal,this.showDeleteModal,this.setPostToReply,this.retweetButtonClickHandler,this.likeButtonClickHandler,this.setPostToDelete,this.props.setView,this.showPinnedPostModal,this.setPostToPin,index))}
                 </div>
                 <ReplyModal createPostHTML={createPostHTML} userLoggedIn={this.state.userLoggedIn} show={this.state.showReplyModal} onHide={this.hideReplyModal} postData={this.state.postToReply} history={this.props.history}></ReplyModal>
                 <DeleteModal show={this.state.showDeleteModal} onHide={this.hideDeleteModal} postId={this.state.postIdToDelete} setPostToDelete={this.setPostToDelete}/>
+                <PinnedPostModal show={this.state.pinnedPostModal} onHide={this.hidePinnedPostModal} postId={this.state.pinnedPostId}/>
             </div>
         )
     }

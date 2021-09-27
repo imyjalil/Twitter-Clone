@@ -5,12 +5,13 @@ import './profile.css'
 import {Link} from 'react-router-dom';
 import {createTab,createPostHTML,createFollowButton} from '../../../common/commonUtilities'
 import ImageUploadModal  from '../../modal/imageUpload/imageUploadModal'
+import PinnedPostModal from "../../modal/pinnedPost/pinnedPostModal";
 
 class Profile extends Component
 {
     constructor(props){
         super(props)
-        this.state={userLoggedIn:null,profileUser:null,posts:null,repliesTab:false,selectedTab:"Posts",imageUploadModal:false};
+        this.state={userLoggedIn:null,profileUser:null,posts:null,repliesTab:false,selectedTab:"Posts",imageUploadModal:false, pinnedPost:null};
     }
     
     componentDidMount()
@@ -45,11 +46,9 @@ class Profile extends Component
                 this.setState({profileUser:response.data.profileUser,userLoggedIn:response.data.userLoggedIn})
             }
 
-            
         }).catch((error)=>{
             console.log(error)
         })
-
         
     }
 
@@ -72,6 +71,13 @@ class Profile extends Component
 
         
         if(profileUser && this.state.selectedTab=="Posts"){
+            params={postedBy:profileUser._id,pinned:true}
+            API.get('/api/posts',{
+                params:params,
+                headers: {'Authorization': 'Bearer '+jsonWebToken}
+            }).then((response)=>{
+                this.setState({pinnedPost:response.data})
+            })
             params={postedBy:profileUser._id,isReply:false}
         }
         else if(profileUser){
@@ -152,6 +158,9 @@ class Profile extends Component
                 <div className="tabsContainer">
                     {createTab("Posts","/profile/"+profileUser.username,this.state.selectedTab==="Posts", this.setTab,this.setPosts, this.state.profileUser)}
                     {createTab("Replies","/profile/"+profileUser.username+"/replies",this.state.selectedTab==="Replies", this.setTab,this.setPosts, this.state.profileUser)}
+                </div>
+                <div className="pinnedPostContainer">
+                    {this.state.pinnedPost && this.state.pinnedPost.map((post,index)=>createPostHTML(post,userLoggedIn,null,null,null,null,null,null,null,null,index))}
                 </div>
                 <div className="postsContainer">
                     {this.state.posts && this.state.posts.map((post,index)=>createPostHTML(post,userLoggedIn,null,null,null,null,null,null,null,null,index))}

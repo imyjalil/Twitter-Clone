@@ -90,6 +90,28 @@ router.put("/:id/like", auth, async (req, res, next) => {
     res.status(200).send(post)
 })
 
+router.put("/:id",auth,async(req,res,next)=>{
+    
+    if(req.body.pinned !== undefined){
+        var pinnedPost=await getPosts({pinned:true})
+        if(pinnedPost !== null && pinnedPost.length !== 0){
+            req.body.pinned=false
+        }
+        await Post.updateMany({postedBy:req.user._id},{pinned:false})
+        .catch((error)=>{
+            console.log(error)
+            res.sendStatus(400)
+        })
+    }
+    var postId=req.params.id
+    Post.findByIdAndUpdate(postId,req.body)
+        .then(()=>res.sendStatus(204))
+        .catch(error=>{
+            console.log(error)
+            res.sendStatus(400)
+        })
+})
+
 router.post("/:id/retweet", auth, async (req, res, next) => {
     var postId=req.params.id
     var userId=req.user._id

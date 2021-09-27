@@ -39,7 +39,7 @@ let timeDifference=(current, previous)=>{
     }
 }
 
-export function createPostHTML(postData,userLoggedIn,postClickHandler,showReplyModal,showDeleteModal,setPostToReply,retweetButtonClickHandler,likeButtonClickHandler,setPostToDelete,setView,index){
+export function createPostHTML(postData,userLoggedIn,postClickHandler,showReplyModal,showDeleteModal,setPostToReply,retweetButtonClickHandler,likeButtonClickHandler,setPostToDelete,setView,showPinnedPostModal,setPostToPin,index){
     //return postData.content
     if(postData==null) return //alert("null post data")
 
@@ -75,9 +75,19 @@ export function createPostHTML(postData,userLoggedIn,postClickHandler,showReplyM
         </div>)
     }
     var buttons="";
-    
+    var pinnedPostText="";
     if(postData.postedBy._id==userLoggedIn._id){
-        buttons=(<button id={postData._id} onClick={(event)=>{showDeleteModal();setPostToDelete(event.target.id);}} data-id={postData._id}><i className="fas fa-times"></i></button>)
+        var pinnedClass=""
+        if(postData.pinned==true){
+            pinnedClass="active"
+            pinnedPostText=(<div><i className="fas fa-thumbtack"></i><span> Pinned Post</span></div>)
+        }
+        buttons=(
+        <div>
+            <button className={'pinButton '+pinnedClass} id={postData._id} onClick={(event)=>{showPinnedPostModal();setPostToPin(event.target.id);}} data-id={postData._id}><i className="fas fa-thumbtack"></i></button>
+            <button id={postData._id} onClick={(event)=>{showDeleteModal();setPostToDelete(event.target.id);}} data-id={postData._id}><i className="fas fa-times"></i></button>
+        </div>
+        )
     }
     
     const postHTML=
@@ -90,6 +100,7 @@ export function createPostHTML(postData,userLoggedIn,postClickHandler,showReplyM
                     <img src={postData.postedBy.profilePic}/>
                 </div>
                 <div className='postContentContainer'>
+                    <div className='pinnedPostedText'>{pinnedPostText}</div>
                     <div className='header'>
                         <Link to={'/profile/'+postData.postedBy.username} className='displayName' onClick={()=>{setView(PROFILE)}}>{postData.postedBy.firstName+" "+postData.postedBy.lastName}</Link>
                         <span className='username'>@{postData.postedBy.username}</span>
