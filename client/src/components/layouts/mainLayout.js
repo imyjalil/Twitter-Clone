@@ -9,6 +9,7 @@ import Search from "../views/Search/search";
 import Home from "../home/home"
 import history from '../../history/history'
 import Post from '../post/post'
+import {Link} from 'react-router-dom'
 
 class MainLayout extends Component
 {
@@ -118,7 +119,7 @@ class MainLayout extends Component
                 break;
 
             case MESSAGES:
-                viewToRender=<Messages/>
+                viewToRender=<Messages setView={this.setView}/>
                 break;
 
             case PROFILE:
